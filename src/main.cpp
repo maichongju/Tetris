@@ -1,11 +1,108 @@
-
 #include <GL/glut.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 
 #include "Constant.hpp"
+#include "World.hpp"
+
+char NEWGAMETEXT[] = "Press \"N\" to start";
+char SCORETEXT[] = "Score ";
+char GAMEOVERTEXT[] = "GAME OVER";
+char GAMEOVERSCORETEXT[] = "Your Score is ";
+char GAMEPAUSETEXT[] = "Pause";
+char GAMERESUMEHINTTEXT[] = "Press 'Esc' to resume";
+char GAMERESTARTTEXT[] = "Press \"R\" to restart";
+char GAMEHIGHSCORETEXT[] = "HighScore ";
+char GAMENEXTTEXT[] = "Next";
 
 int winx = 100, winy = 100;
-int GameStatus = GAME_STATUS_NEW;
+int GameStatus = GAME_STATUS_END;
 int KeyDirection = GAME_KEY_NULL;
+int Score = 0, HighScore = 0;
+
+World GameWorld;
+/**
+ * Function will set up all the text for the program
+ */
+void setText(void) {
+	glColor3f(1.0, 1.0, 1.0);
+	char scorechar[6];
+	int i, size;
+	glRasterPos2i(560, 950);
+	for (i = 0; SCORETEXT[i] != '\0'; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, SCORETEXT[i]);
+	}
+	glRasterPos2i(560, 920);
+	sprintf(scorechar, "%d", Score);
+	for (i = 0; scorechar[i] != '\0'; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, scorechar[i]);
+	}
+	glRasterPos2i(560, 880);
+
+	for (i = 0; GAMEHIGHSCORETEXT[i] != '\0'; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, GAMEHIGHSCORETEXT[i]);
+	}
+	glRasterPos2i(560, 850);
+	sprintf(scorechar, "%d", HighScore);
+	for (i = 0; scorechar[i] != '\0'; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, scorechar[i]);
+	}
+	glRasterPos2i(560, 800);
+	for (i = 0; GAMENEXTTEXT[i] != '\0'; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, GAMENEXTTEXT[i]);
+	}
+	if (GameStatus == GAME_STATUS_NEW) {
+		size = length(NEWGAMETEXT);
+		glRasterPos2f(GAME_ZONE_WIDTH / 2 - GAME_ZONE_X - size,
+		GAME_ZONE_HEIGHT / 2);
+		for (i = 0; NEWGAMETEXT[i] != '\0'; i++) {
+			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, NEWGAMETEXT[i]);
+		}
+
+	} else if (GameStatus == GAME_STATUS_END) {
+		size = length(GAMEOVERTEXT);
+		glRasterPos2f(GAME_ZONE_WIDTH / 2 - size * 4,
+		GAME_ZONE_HEIGHT / 2 + 30);
+
+		for (i = 0; GAMEOVERTEXT[i] != '\0'; i++) {
+			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, GAMEOVERTEXT[i]);
+		}
+		size = length(GAMEOVERSCORETEXT);
+		glRasterPos2f(GAME_ZONE_WIDTH / 2 - 3 * size, GAME_ZONE_HEIGHT / 2);
+
+		for (i = 0; GAMEOVERSCORETEXT[i] != '\0'; i++) {
+			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,
+					GAMEOVERSCORETEXT[i]);
+		}
+		sprintf(scorechar, "%d", Score);
+		for (i = 0; scorechar[i] != '\0'; i++) {
+			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, scorechar[i]);
+		}
+		size = length(GAMERESTARTTEXT);
+		glRasterPos2f(GAME_ZONE_WIDTH / 2 - size * 3,
+		GAME_ZONE_HEIGHT / 2 - 30);
+
+		for (i = 0; GAMERESTARTTEXT[i] != '\0'; i++) {
+			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, GAMERESTARTTEXT[i]);
+		}
+	} else if (GameStatus == GAME_STATUS_PAUSE) {
+		size = length(GAMEPAUSETEXT);
+		glRasterPos2f(GAME_ZONE_WIDTH / 2 - size / 2,
+		GAME_ZONE_HEIGHT / 2 + 30);
+
+		for (i = 0; GAMEPAUSETEXT[i] != '\0'; i++) {
+			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, GAMEPAUSETEXT[i]);
+		}
+		size = length(GAMERESUMEHINTTEXT);
+		glRasterPos2f(GAME_ZONE_WIDTH / 2 - 3 * size, GAME_ZONE_HEIGHT / 2);
+
+		for (i = 0; GAMERESUMEHINTTEXT[i] != '\0'; i++) {
+			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,
+					GAMERESUMEHINTTEXT[i]);
+		}
+	}
+}
 
 /**
  * Function will draw the game zone border. Default color is white
@@ -26,7 +123,6 @@ void drawGameZoneBorder(void) {
 	glEnd();
 }
 
-
 /**
  * Function will set the windows to the center of the screen according screen resolution
  * if screen_height or screen_width means the resolution cannot get correctly, then the
@@ -43,24 +139,55 @@ void centerwindow(int screen_height, int screen_width) {
 	}
 }
 
+
+/**
+ * Function will called by glutKeyboardFunc, react for key input (ASCII key)
+ * @param key
+ * 			the key that the user pressed
+ * @param x
+ * 			position x of mouse while the key press
+ * @param y
+ * 			position y of mouse while the key press
+ */
 void keyFunc(unsigned char key, int x, int y) {
 	if (GameStatus == GAME_STATUS_NEW) {
-
+		if (key == 'n' || key == 'N') {
+			GameStatus = GAME_STATUS_RUNNING;
+		}
 	} else if (GameStatus == GAME_STATUS_RUNNING) {
-
+		if (key == 27) {
+			GameStatus = GAME_STATUS_PAUSE;
+		}
 
 	} else if (GameStatus == GAME_STATUS_PAUSE) {
-
+		if (key == 27) {
+			GameStatus = GAME_STATUS_RUNNING;
+		}
 	} else if (GameStatus == GAME_STATUS_END) {
-
+		if (key == 'r' || key == 'R') {
+			GameStatus = GAME_STATUS_NEW;
+		}
 	}
 }
-
+/**
+ * Function will called by glutSpecialFunc, react for special key input (Non-ASCII)
+ * @param key
+ * 			the key that the user pressed
+ * @param x
+ * 			position x of mouse while the key press
+ * @param y
+ * 			position y of mouse while the key press
+ */
 void specialFunc(int key, int x, int y) {
 	if (GameStatus == GAME_STATUS_NEW) {
 
 	} else if (GameStatus == GAME_STATUS_RUNNING) {
+		if (key == GLUT_KEY_LEFT) {
+			KeyDirection = GAME_KEY_LEFT;
 
+		} else if (key == GLUT_KEY_RIGHT) {
+			KeyDirection = GAME_KEY_RIGHT;
+		}
 	} else if (GameStatus == GAME_STATUS_PAUSE) {
 
 	} else if (GameStatus == GAME_STATUS_END) {
@@ -73,6 +200,8 @@ void specialFunc(int key, int x, int y) {
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	drawGameZoneBorder();
+	GameWorld.draw();
+	setText();
 	glFlush();
 	glutSwapBuffers();
 	glutPostRedisplay();
@@ -90,12 +219,9 @@ int main(int argc, char** argv) {
 	gluOrtho2D(0.0, WIN_WIDTH, 0.0, WIN_HEIGHT);
 
 	glutKeyboardFunc(keyFunc);
-	glutSpecialFunc (specialFunc);
+	glutSpecialFunc(specialFunc);
 	glutDisplayFunc(display);
 	glutMainLoop();
-
-
-
 
 	return 0;
 }
