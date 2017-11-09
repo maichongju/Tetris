@@ -46,11 +46,26 @@ void centerwindow(int screen_height, int screen_width) {
 void keyFunc(unsigned char key, int x, int y) {
 	if (GameStatus == GAME_STATUS_NEW) {
 
+	} else if (GameStatus == GAME_STATUS_RUNNING) {
+
+
+	} else if (GameStatus == GAME_STATUS_PAUSE) {
+
+	} else if (GameStatus == GAME_STATUS_END) {
+
 	}
 }
 
 void specialFunc(int key, int x, int y) {
+	if (GameStatus == GAME_STATUS_NEW) {
 
+	} else if (GameStatus == GAME_STATUS_RUNNING) {
+
+	} else if (GameStatus == GAME_STATUS_PAUSE) {
+
+	} else if (GameStatus == GAME_STATUS_END) {
+
+	}
 }
 /**
  * Display function
