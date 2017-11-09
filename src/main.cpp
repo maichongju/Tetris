@@ -4,6 +4,28 @@
 #include "Constant.hpp"
 
 int winx = 100, winy = 100;
+int GameStatus = GAME_STATUS_NEW;
+int KeyDirection = GAME_KEY_NULL;
+
+/**
+ * Function will draw the game zone border. Default color is white
+ */
+void drawGameZoneBorder(void) {
+	GLint x = GAME_ZONE_X, y = GAME_ZONE_Y;
+	glColor3f(1.0, 1.0, 1.0); //Border Color
+	glLineWidth(2.0);
+	glBegin(GL_LINES);
+	glVertex2i(x, y);
+	glVertex2i(x + GAME_ZONE_WIDTH, y);
+	glVertex2i(x + GAME_ZONE_WIDTH, y);
+	glVertex2i(x + GAME_ZONE_WIDTH, y + GAME_ZONE_HEIGHT);
+	glVertex2i(x + GAME_ZONE_WIDTH, y + GAME_ZONE_HEIGHT);
+	glVertex2i(x, y + GAME_ZONE_HEIGHT);
+	glVertex2i(x, y + GAME_ZONE_HEIGHT);
+	glVertex2i(x, y);
+	glEnd();
+}
+
 
 /**
  * Function will set the windows to the center of the screen according screen resolution
@@ -21,10 +43,21 @@ void centerwindow(int screen_height, int screen_width) {
 	}
 }
 
+void keyFunc(unsigned char key, int x, int y) {
+	if (GameStatus == GAME_STATUS_NEW) {
 
+	}
+}
+
+void specialFunc(int key, int x, int y) {
+
+}
+/**
+ * Display function
+ */
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
-
+	drawGameZoneBorder();
 	glFlush();
 	glutSwapBuffers();
 	glutPostRedisplay();
@@ -41,6 +74,8 @@ int main(int argc, char** argv) {
 	glMatrixMode(GL_PROJECTION);
 	gluOrtho2D(0.0, WIN_WIDTH, 0.0, WIN_HEIGHT);
 
+	glutKeyboardFunc(keyFunc);
+	glutSpecialFunc (specialFunc);
 	glutDisplayFunc(display);
 	glutMainLoop();
 
