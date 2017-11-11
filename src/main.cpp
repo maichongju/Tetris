@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <iostream>
 
 #include "Constant.hpp"
 #include "World.hpp"
+
+
 
 char NEWGAMETEXT[] = "Press \"N\" to start";
 char SCORETEXT[] = "Score ";
@@ -17,11 +20,23 @@ char GAMEHIGHSCORETEXT[] = "HighScore ";
 char GAMENEXTTEXT[] = "Next";
 
 int winx = 100, winy = 100;
-int GameStatus = GAME_STATUS_END;
+int GameStatus = GAME_STATUS_NEW;
 int KeyDirection = GAME_KEY_NULL;
 int Score = 0, HighScore = 0;
 
 World GameWorld;
+int GameLevel = GAME_LEVEL_NORMAL;
+float moved;
+
+static int oldTime, newTime;
+void move() {
+	GLfloat speed = 0.1;
+	oldTime = clock();
+	moved = (newTime - oldTime) * speed;
+	newTime = clock();
+	oldTime = newTime;
+	glutPostRedisplay();
+}
 /**
  * Function will set up all the text for the program
  */
@@ -187,6 +202,10 @@ void specialFunc(int key, int x, int y) {
 
 		} else if (key == GLUT_KEY_RIGHT) {
 			KeyDirection = GAME_KEY_RIGHT;
+		} else if (key == GLUT_KEY_UP) {
+			KeyDirection = GAME_KEY_UP;
+		} else if (key == GLUT_KEY_DOWN) {
+			KeyDirection = GAME_KEY_DOWN;
 		}
 	} else if (GameStatus == GAME_STATUS_PAUSE) {
 
@@ -195,19 +214,53 @@ void specialFunc(int key, int x, int y) {
 	}
 }
 /**
+ * New Game setting
+ */
+void newGame(void) {
+	GameStatus = GAME_STATUS_NEW;
+	GameWorld.reset();
+}
+
+/**
+ * Function for main menu
+ * @param option
+ */
+void mainMenu(GLint option) {
+	switch (option) {
+	case 1: {
+		newGame();
+		break;
+	}
+	case 2: {
+		exit(0);
+	}
+	}
+}
+
+/**
+ * Set up menu
+ */
+void Menu(void) {
+	glutCreateMenu(mainMenu);
+	glutAddMenuEntry(" New Game", 1);
+	glutAddMenuEntry(" Exit Game", 2);
+}
+/**
  * Display function
  */
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
-	drawGameZoneBorder();
+
 	GameWorld.draw();
 	setText();
+	drawGameZoneBorder();
 	glFlush();
 	glutSwapBuffers();
 	glutPostRedisplay();
 }
 
 int main(int argc, char** argv) {
+	setvbuf(stdout, NULL, _IONBF, 0);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	centerwindow(glutGet(GLUT_SCREEN_HEIGHT), glutGet(GLUT_SCREEN_WIDTH));
@@ -218,9 +271,11 @@ int main(int argc, char** argv) {
 	glMatrixMode(GL_PROJECTION);
 	gluOrtho2D(0.0, WIN_WIDTH, 0.0, WIN_HEIGHT);
 
+	Menu();
 	glutKeyboardFunc(keyFunc);
 	glutSpecialFunc(specialFunc);
 	glutDisplayFunc(display);
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
 	glutMainLoop();
 
 	return 0;

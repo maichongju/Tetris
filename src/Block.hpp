@@ -1,9 +1,13 @@
 #ifndef SRC_BLOCK_HPP_
 #define SRC_BLOCK_HPP_
 
+#include <stdio.h>
+#include <math.h>
 #include <GL/glut.h>
 #include "Constant.hpp"
 #include "Color.hpp"
+
+
 
 //http://tetris.wikia.com/wiki/Tetrimino
 class Position {
@@ -12,62 +16,56 @@ public:
 	Position();
 	Position(int x, int y);
 	void set(int x, int y);
+
 };
 
 class Block {
 public:
+	Color color;
 	virtual ~Block();
-	virtual void draw(void)=0;
-	virtual void rotation(int direction)=0;
+	void draw(void);
+	void draw(int x, int y, int size);
+	void rotation();
+	void translate(int direction);
 	virtual void reset() = 0;
 	Position *plist[4];
+	Position start;
 protected:
-	Color color, outlineColor;
+	Color outlineColor;
+	int direction;
 	void drawOutline(int x, int y, int size, Color color);
+	bool isvaild(Position *plist[], Position start, int direction);
 
 };
 
 class Block_I: public Block {
 public:
 	Block_I();
-	void draw(void);
-	void rotation(int direction);
 	void reset();
 };
 
 class Block_O: public Block {
 public:
 	Block_O();
-	~Block_O();
-	void draw(void);
-	void rotation(int direction);
 	void reset();
 
 };
 class Block_T: public Block {
 public:
 	Block_T();
-	~Block_T();
-	void draw(void);
-	void rotation(int direction);
 	void reset();
 
 };
 class Block_S: public Block {
 public:
-	~Block_S();
 	Block_S();
-	void draw(void);
-	void rotation(int direction);
+
 	void reset();
 
 };
 class Block_Z: public Block {
 public:
 	Block_Z();
-	~Block_Z();
-	void draw(void);
-	void rotation(int direction);
 	void reset();
 
 };
@@ -75,9 +73,6 @@ public:
 class Block_J: public Block {
 public:
 	Block_J();
-	~Block_J();
-	void draw(void);
-	void rotation(int direction);
 	void reset();
 
 };
@@ -85,9 +80,6 @@ public:
 class Block_L: public Block {
 public:
 	Block_L();
-	~Block_L();
-	void draw(void);
-	void rotation(int direction);
 	void reset();
 
 };
