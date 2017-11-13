@@ -120,6 +120,14 @@ void setText(void) {
 }
 
 /**
+ * New Game setting
+ */
+void newGame(void) {
+	GameStatus = GAME_STATUS_NEW;
+	GameWorld.reset();
+}
+
+/**
  * Function will draw the game zone border. Default color is white
  */
 void drawGameZoneBorder(void) {
@@ -212,13 +220,6 @@ void specialFunc(int key, int x, int y) {
 	} else if (GameStatus == GAME_STATUS_END) {
 
 	}
-}
-/**
- * New Game setting
- */
-void newGame(void) {
-	GameStatus = GAME_STATUS_NEW;
-	GameWorld.reset();
 }
 
 /**

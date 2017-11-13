@@ -41,14 +41,18 @@ void World::draw() {
 			block[this->current]->translate(KeyDirection);
 			KeyDirection = GAME_KEY_NULL;
 		}
-		if (movecount < 500) {
+		if (movecount < 15) {
 			movecount++;
 		} else {
 			if (isHit()) {
-				printf("Hit!!\n");
+				if (block[this->current]->start.y == GAME_ZONE_ROWS) {
+					GameStatus = GAME_STATUS_END;
+					this->reset();
+				} else {
 				deleteGrid();
 				block[this->current]->reset();
-				current = this->next.getNext();
+					current = this->next.getNext();
+				}
 			} else {
 				block[this->current]->translate(GAME_KEY_DOWN);
 			}
@@ -70,21 +74,29 @@ void World::reset() {
 			grid[i][j].setDeactive();
 		}
 	}
-
+	for (i = 0; i < 7; i++) {
+		block[i]->reset();
+	}
 }
 
 bool World::isHit() {
 	int i, startx, starty, x, y;
 	startx = this->block[this->current]->start.x;
 	starty = this->block[this->current]->start.y;
+	if (starty == 20) {
+		if (grid[19][startx].isActive) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	for (i = 0; i < 4; i++) {
 		x = this->block[this->current]->plist[i]->x;
 		y = this->block[this->current]->plist[i]->y;
 		if (starty + y == 0) {
 			updateWorld();
 			return true;
-		} else if (starty == 20) {
-			return false;
+
 		} else if (grid[starty + y - 1][startx + x].isActive) {
 
 			updateWorld();
@@ -153,27 +165,30 @@ void World::deleteGrid() {
 				}
 			}
 			if (line) {
+				Score += 5;
 				int k;
 				for (k = i; k < GAME_ZONE_ROWS - 2; k++) {
 					line = true;
 					for (j = 0; j < GAME_ZONE_COLS; j++) {
 						if (grid[k + 1][j].isActive) {
 							grid[k][j].setActive(grid[k + 1][j].color);
+							line = false;
 						} else {
 							grid[k][j].setDeactive();
-							line = false;
+
 						}
 					}
 					if (line) {
 						break;
 					}
 				}
-				for (k = 0; k < GAME_ZONE_COLS; j++) {
+				for (k = 0; k < GAME_ZONE_COLS; k++) {
 					grid[GAME_ZONE_ROWS - 1][k].setDeactive();
 				}
 				break;
+			} else {
+				status = false;
 			}
 		}
-		status = false;
 	}
 }
